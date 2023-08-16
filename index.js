@@ -1,7 +1,7 @@
 import express from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import endpoints from "./endpoints/endpoints.js";
-
+import easyPay from "./utils/easypay.js"
 const app = express();
 
 app.use(express.json());
@@ -42,6 +42,20 @@ endpoints.forEach((endpoint) => {
       },
     })
   );
+});
+
+//payment handlers
+app.post("/payment/generatelink", (req, res) => {
+  const payload = req.body;
+  try {
+    const response = easyPay.generatePayload(
+      payload,
+      process.env.environment === "prod" ? false : true
+    );
+    res.status(200).send(response);
+  } catch (err) {
+    res.status(500).send({ message: "Some Error Occured" });
+  }
 });
 
 app.listen(port, () => {
