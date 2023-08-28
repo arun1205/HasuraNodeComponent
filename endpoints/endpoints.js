@@ -35,6 +35,11 @@ const endpoints = [
   },
   {
     method: "post",
+    route: "/api/rest/addInstituteCourse",
+    requestBody: ["institute_course", "institute_form"],
+  },
+  {
+    method: "post",
     route: "/api/rest/addInstitutePoc",
     requestBody: [
       "fname",
@@ -165,15 +170,29 @@ const endpoints = [
   },
   {
     method: "post",
+    route: "/api/rest/getAllAssessors",
+    requestBody: ["offsetNo", "limit"],
+  },
+  {
+    method: "post",
     route: "/api/rest/getAllCourses",
     requestBody: ["condition"],
   },
   {
+    method: "get",
+    route: "/api/rest/getAllRegulatorDeviceId",
+  },
+  {
     method: "post",
-    route: "/api/rest/getAllUsers",
+    route: "/api/rest/getAllRegulators",
     requestBody: ["offsetNo", "limit"],
   },
   { method: "post", route: "/api/rest/getApplicant", requestBody: ["user_id"] },
+  {
+    method: "post",
+    route: "/api/rest/getApplicantDeviceId",
+    requestBody: ["institute_id"],
+  },
   {
     method: "post",
     route: "/api/rest/getApplicationStatus",
@@ -238,6 +257,11 @@ const endpoints = [
     route: "/api/rest/getPastInspections",
     requestBody: ["assessor_id", "date"],
   },
+  {
+    method: "post",
+    route: "/api/rest/getPendingInspections",
+    requestBody: ["assessor_id", "date"],
+  },
   { method: "post", route: "/api/rest/getRegulator", requestBody: ["email"] },
   {
     method: "post",
@@ -289,6 +313,11 @@ const endpoints = [
   },
   {
     method: "post",
+    route: "/api/rest/searchCourses",
+    requestBody: ["searchString"],
+  },
+  {
+    method: "post",
     route: "/api/rest/searchDesktop",
     requestBody: ["offsetNo", "limit", "searchString"],
   },
@@ -313,6 +342,16 @@ const endpoints = [
     method: "put",
     route: "/api/rest/unpublishForms",
     requestBody: ["form_id"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/updateApplicantDeviceId",
+    requestBody: ["user_id", "device_id"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/updateAssessorDeviceId",
+    requestBody: ["user_id", "device_id"],
   },
   {
     method: "put",
@@ -353,6 +392,16 @@ const endpoints = [
     ],
   },
   {
+    method: "put",
+    route: "/api/rest/updatePaymentStatus",
+    requestBody: ["form_id", "payment_status"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/updateRegulatorDeviceId",
+    requestBody: ["user_id", "device_id"],
+  },
+  {
     method: "post",
     route: "/api/rest/validateAssessor",
     requestBody: [
@@ -367,6 +416,11 @@ const endpoints = [
     method: "post",
     route: "/api/rest/viewNotification",
     requestBody: ["notification_id"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/viewSchedule",
+    requestBody: ["user_id", "date"],
   },
 ];
 

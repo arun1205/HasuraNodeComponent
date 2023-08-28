@@ -1,7 +1,7 @@
 import express from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import endpoints from "./endpoints/endpoints.js";
-import easyPay from "./utils/easypay.js"
+import easyPay from "./utils/easypay.js";
 const app = express();
 
 app.use(express.json());
@@ -18,20 +18,15 @@ endpoints.forEach((endpoint) => {
       target: targetURL,
       changeOrigin: true,
       onProxyReq: (proxyReq, req, res) => {
-        const bodyData = JSON.stringify(req.body);
-        proxyReq.setHeader(
-          "x-hasura-admin-secret",
-          req.header("x-hasura-admin-secret")
-        );
-        proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
+        proxyReq.setHeader("x-hasura-admin-secret", "myadminsecretkey");
+        proxyReq.setHeader("Hasura-Client-Name", "hasura-console");
+        if (endpoint.requestBody) {
+          const bodyData = JSON.stringify(req.body);
+          proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
+        }
         // Set request body if provided
         if (endpoint.requestBody && req.body) {
-          for (const field of endpoint.requestBody) {
-            if (req.body[field]) {
-              console.log(req.body[field]);
-              proxyReq.write(JSON.stringify({ [field]: req.body[field] }));
-            }
-          }
+          proxyReq.write(JSON.stringify(req.body));
         }
         proxyReq.end();
       },
