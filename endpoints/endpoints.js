@@ -254,6 +254,16 @@ const endpoints = [
   },
   {
     method: "post",
+    route: "/api/rest/getOGAList",
+    requestBody: ["applicant_form_id", "submitted_on"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getOGIA",
+    requestBody: ["offsetNo", "limit", "formStatus", "round"],
+  },
+  {
+    method: "post",
     route: "/api/rest/getPastInspections",
     requestBody: ["assessor_id", "date"],
   },
