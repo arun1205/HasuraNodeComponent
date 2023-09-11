@@ -224,6 +224,11 @@ const endpoints = [
     route: "/api/rest/getDesktopAnalysis",
     requestBody: ["offsetNo", "limit"],
   },
+  {
+    method: "post",
+    route: "/api/rest/getDeviceId",
+    requestBody: ["user_id"],
+  },
   { method: "post", route: "/api/rest/getEvents", requestBody: ["id"] },
   { method: "post", route: "/api/rest/getFormData", requestBody: ["form_id"] },
   {
