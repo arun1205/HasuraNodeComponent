@@ -301,6 +301,11 @@ const endpoints = [
   },
   {
     method: "post",
+    route: "/api/rest/getUpcomingSchedules",
+    requestBody: ["today"],
+  },
+  {
+    method: "post",
     route: "/api/rest/getUsersForSchedulingAssessment",
     requestBody: ["todayDate"],
   },
