@@ -254,6 +254,11 @@ const endpoints = [
   },
   {
     method: "post",
+    route: "/api/rest/getNOCCertificate",
+    requestBody: ["round"],
+  },
+  {
+    method: "post",
     route: "/api/rest/getNotifications",
     requestBody: ["user_id"],
   },
