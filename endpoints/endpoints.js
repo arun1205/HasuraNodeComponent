@@ -353,6 +353,11 @@ const endpoints = [
   },
   {
     method: "post",
+    route: "/api/rest/searchNOC",
+    requestBody: ["searchString", "round"],
+  },
+  {
+    method: "post",
     route: "/api/rest/searchOGA",
     requestBody: ["offsetNo", "limit", "searchString", "formStatus"],
   },
