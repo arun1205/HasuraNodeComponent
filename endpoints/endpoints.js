@@ -384,6 +384,11 @@ const endpoints = [
     requestBody: ["user_id", "device_id"],
   },
   {
+    method: "post",
+    route: "/api/rest/updateChildCode",
+    requestBody: ["form_id", "child_code"],
+  },
+  {
     method: "put",
     route: "/api/rest/updateForm",
     requestBody: ["form_id", "form_status"],
@@ -420,6 +425,11 @@ const endpoints = [
       "form_desc",
       "form_id",
     ],
+  },
+  {
+    method: "post",
+    route: "/api/rest/updateParentCode",
+    requestBody: ["institute_id", "parent_code"],
   },
   {
     method: "put",
