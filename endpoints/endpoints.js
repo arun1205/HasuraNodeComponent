@@ -462,6 +462,11 @@ const endpoints = [
     route: "/api/rest/viewSchedule",
     requestBody: ["user_id", "date"],
   },
+  {
+    method: "post",
+    route: "/api/rest/getCourseMapping",
+    requestBody: ["courseType", "courseLevel"],
+  }
 ];
 
 export default endpoints;
