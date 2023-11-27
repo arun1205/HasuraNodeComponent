@@ -466,6 +466,11 @@ const endpoints = [
     method: "post",
     route: "/api/rest/getCourseMapping",
     requestBody: ["courseType", "courseLevel"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/filterRegulatorByRole",
+    requestBody: ["offsetNo", "limit", "role"],
   }
 ];
 
