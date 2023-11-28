@@ -475,7 +475,7 @@ const endpoints = [
   {
     method: "post",
     route: "/api/rest/getFormSubmissionsByCourseIdApplicantIdFormStatus",
-    requestBody: [   "course_id", "applicant_id","form_status"]
+    requestBody: ["course_id", "applicant_id","form_status"]
   }
 
 ];
