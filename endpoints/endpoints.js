@@ -471,7 +471,13 @@ const endpoints = [
     method: "post",
     route: "/api/rest/filterRegulatorByRole",
     requestBody: ["offsetNo", "limit", "role"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getFormSubmissionsByCourseIdApplicantIdFormStatus",
+    requestBody: ["course_id", "applicant_id","form_status"]
   }
+
 ];
 
 export default endpoints;
