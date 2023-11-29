@@ -476,6 +476,11 @@ const endpoints = [
     method: "post",
     route: "/api/rest/getFormSubmissionsByCourseIdApplicantIdFormStatus",
     requestBody: ["course_id", "applicant_id","form_status"]
+  },
+  {
+    method: "post",
+    route: "/api/rest/getFormSubmissionCountByStatus",
+    requestBody: ["formStatus","offsetNo", "limit"]
   }
 
 ];
