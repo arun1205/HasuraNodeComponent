@@ -486,6 +486,11 @@ const endpoints = [
     method: "post",
     route: "/api/rest/filterFormSubmissionsByRound",
     requestBody: ["round","offsetNo","limit"]
+  },
+  {
+    method: "post",
+    route: "/api/rest/searchDashboardForms",
+    requestBody: ["searchString","offsetNo","limit"]
   }
 
 
