@@ -491,9 +491,14 @@ const endpoints = [
     method: "post",
     route: "/api/rest/searchDashboardForms",
     requestBody: ["searchString","offsetNo","limit"]
+  },
+  {
+    method: "post",
+    route: "/api/rest/filterSubmittedFormByRound",
+    requestBody: ["param","offsetNo","limit"]
   }
 
-
+  //{"round":{"_eq":1},"form_status":{"_eq":"Inspection Scheduled"},"institute":{"district":{"_eq":"Barabanki"}},"submitted_on":{"_gte":"10/12/2023", "_lte":"12/12/2023"}}
 ];
 
 export default endpoints;
