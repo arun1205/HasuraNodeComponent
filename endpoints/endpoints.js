@@ -498,7 +498,25 @@ const endpoints = [
     requestBody: ["param","offsetNo","limit"]
   }
 
-  //{"round":{"_eq":1},"form_status":{"_eq":"Inspection Scheduled"},"institute":{"district":{"_eq":"Barabanki"}},"submitted_on":{"_gte":"10/12/2023", "_lte":"12/12/2023"}}
+  {
+    method: "post",
+    route: "/api/rest/getApprovedSubmissionCount",
+    requestBody: ["round"]
+  }
+
+  {
+    method: "post",
+    route: "/api/rest/getRejectedSubmissionsCount",
+    requestBody: ["round"]
+  }
+
+  {
+    method: "post",
+    route: "/api/rest/getInProgressSubmissionCount",
+    requestBody: ["round"]
+  }
+
+
 ];
 
 export default endpoints;
