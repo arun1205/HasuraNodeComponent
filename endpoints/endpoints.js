@@ -496,19 +496,19 @@ const endpoints = [
     method: "post",
     route: "/api/rest/filterSubmittedFormByRound",
     requestBody: ["param","offsetNo","limit"]
-  }
+  },
 
   {
     method: "post",
     route: "/api/rest/getApprovedSubmissionCount",
     requestBody: ["round"]
-  }
+  },
 
   {
     method: "post",
     route: "/api/rest/getRejectedSubmissionsCount",
     requestBody: ["round"]
-  }
+  },
 
   {
     method: "post",
