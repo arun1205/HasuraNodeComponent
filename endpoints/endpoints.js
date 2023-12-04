@@ -514,6 +514,11 @@ const endpoints = [
     method: "post",
     route: "/api/rest/getInProgressSubmissionCount",
     requestBody: ["round"]
+  },
+  {
+    method: "post",
+    route: "/api/rest/getOGAFormsCountByRoundAndFormStatus",
+    requestBody: ["round","formStatus"]
   }
 
 
