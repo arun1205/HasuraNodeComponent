@@ -519,6 +519,16 @@ const endpoints = [
     method: "post",
     route: "/api/rest/getOGAFormsCountByRoundAndFormStatus",
     requestBody: ["round","formStatus"]
+  },
+  {
+    method: "put",
+    route: "/api/rest/regulator/activate",
+    requestBody: ["requlatorId"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/regulator/deactivate",
+    requestBody: ["requlatorId"],
   }
 
 
