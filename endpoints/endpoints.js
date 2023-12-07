@@ -529,8 +529,12 @@ const endpoints = [
     method: "put",
     route: "/api/rest/regulator/deactivate",
     requestBody: ["requlatorId"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/applicant/application/status",
+    requestBody: ["applicant_id", "noc_present", "round"],
   }
-
 
 ];
 
