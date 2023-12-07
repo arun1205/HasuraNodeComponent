@@ -532,7 +532,7 @@ const endpoints = [
   },
   {
     method: "post",
-    route: "/api/rest/applicant/application/status",
+    route: "/api/rest/applicantApplicationStatus",
     requestBody: ["applicant_id", "noc_present", "round"],
   }
 
