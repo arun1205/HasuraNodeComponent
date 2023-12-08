@@ -534,6 +534,11 @@ const endpoints = [
     method: "post",
     route: "/api/rest/applicantApplicationStatus",
     requestBody: ["applicant_id", "noc_path", "round"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/findUserByEmail",
+    requestBody: ["email"],
   }
 ];
 
