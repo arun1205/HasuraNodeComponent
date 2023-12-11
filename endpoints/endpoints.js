@@ -559,6 +559,11 @@ const endpoints = [
       "created_on",
       "updated_on"
     ],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getAllInstituteDrafts",
+    requestBody: ["searchString","offsetNo", "limit"],
   }
 ];
 
