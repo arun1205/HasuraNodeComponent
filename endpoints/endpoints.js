@@ -539,6 +539,26 @@ const endpoints = [
     method: "post",
     route: "/api/rest/findUserByEmail",
     requestBody: ["email"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/instituteFormsDrafts",
+    requestBody: [
+      "applicant_id",
+      "form_status",
+      "assessment_type",
+      "round",
+      "course_type",
+      "course_level",
+      "course_id",
+      "active",
+      "updated_by",
+      "created_by",
+      "form_data",
+      "form_id",
+      "created_on",
+      "updated_on"
+    ],
   }
 ];
 
