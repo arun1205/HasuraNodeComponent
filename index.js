@@ -49,6 +49,8 @@ app.post("/payment/generatelink", (req, res) => {
     );
     res.status(200).send(response);
   } catch (err) {
+    console.error("Error:", err);
+    console.error("Error message:", err.message);
     res.status(500).send({ message: "Some Error Occured" });
   }
 });
