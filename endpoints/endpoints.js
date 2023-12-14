@@ -590,12 +590,12 @@ const endpoints = [
   {
     method: "post",
     route: "/api/rest/getAllTransactionRecords",
-    requestBody: ["offsetNo", "limit"],
+    requestBody: ["$offset", "limit"],
   },
   {
     method: "post",
     route: "/api/rest/filterAllTransactionRecords",
-    requestBody: ["param", "offsetNo", "limit"],
+    requestBody: ["param", "$offset", "limit"],
   },
   {
     method: "put",
@@ -604,6 +604,16 @@ const endpoints = [
       "form_data",
       "form_name"
     ],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getAllInitialFormSubmissions",
+    requestBody: ["$offset", "limit"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getInitialFormSubmissionsById",
+    requestBody: ["id"],
   }
 ];
 
