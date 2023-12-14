@@ -596,6 +596,14 @@ const endpoints = [
     method: "post",
     route: "/api/rest/filterAllTransactionRecords",
     requestBody: ["param", "offsetNo", "limit"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/saveInitialFormSubmissions",
+    requestBody: [
+      "form_data",
+      "form_name"
+    ],
   }
 ];
 
