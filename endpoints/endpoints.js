@@ -564,6 +564,38 @@ const endpoints = [
     method: "post",
     route: "/api/rest/getAllInstituteDrafts",
     requestBody: ["searchString","offsetNo", "limit"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/saveTransactionRecord",
+    requestBody: [
+      "created_by",
+      "invoice_date",
+      "invoice_id",
+      "invoice_time",
+      "payer_id",
+      "payer_type",
+      "payment_mode",
+      "reference_no",
+      "refund_date",
+      "refund_id",
+      "refund_status",
+      "refund_time",
+      "transaction_amount",
+      "transaction_date",
+      "transaction_status",
+      "transaction_time"
+    ],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getAllTransactionRecords",
+    requestBody: ["offsetNo", "limit"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/filterAllTransactionRecords",
+    requestBody: ["param", "offsetNo", "limit"],
   }
 ];
 
