@@ -614,7 +614,22 @@ const endpoints = [
     method: "post",
     route: "/api/rest/getInitialFormSubmissionsById",
     requestBody: ["id"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/config/add",
+    requestBody: [
+      "name",
+      "type",
+      "value",
+      "status",
+      "created_by",
+      "created_date",
+      "updated_by",
+      "updated_date"
+    ],
   }
+    
 ];
 
 export default endpoints;
