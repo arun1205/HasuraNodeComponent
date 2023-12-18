@@ -35,6 +35,11 @@ const endpoints = [
   },
   {
     method: "post",
+    route: "/api/rest/addInstituteCourse",
+    requestBody: ["institute_course", "institute_form"],
+  },
+  {
+    method: "post",
     route: "/api/rest/addInstitutePoc",
     requestBody: [
       "fname",
@@ -165,15 +170,29 @@ const endpoints = [
   },
   {
     method: "post",
+    route: "/api/rest/getAllAssessors",
+    requestBody: ["offsetNo", "limit"],
+  },
+  {
+    method: "post",
     route: "/api/rest/getAllCourses",
     requestBody: ["condition"],
   },
   {
+    method: "get",
+    route: "/api/rest/getAllRegulatorDeviceId",
+  },
+  {
     method: "post",
-    route: "/api/rest/getAllUsers",
+    route: "/api/rest/getAllRegulators",
     requestBody: ["offsetNo", "limit"],
   },
   { method: "post", route: "/api/rest/getApplicant", requestBody: ["user_id"] },
+  {
+    method: "post",
+    route: "/api/rest/getApplicantDeviceId",
+    requestBody: ["institute_id"],
+  },
   {
     method: "post",
     route: "/api/rest/getApplicationStatus",
@@ -205,6 +224,11 @@ const endpoints = [
     route: "/api/rest/getDesktopAnalysis",
     requestBody: ["offsetNo", "limit"],
   },
+  {
+    method: "post",
+    route: "/api/rest/getDeviceId",
+    requestBody: ["user_id"],
+  },
   { method: "post", route: "/api/rest/getEvents", requestBody: ["id"] },
   { method: "post", route: "/api/rest/getFormData", requestBody: ["form_id"] },
   {
@@ -230,12 +254,32 @@ const endpoints = [
   },
   {
     method: "post",
+    route: "/api/rest/getNOCCertificate",
+    requestBody: ["round"],
+  },
+  {
+    method: "post",
     route: "/api/rest/getNotifications",
     requestBody: ["user_id"],
   },
   {
     method: "post",
+    route: "/api/rest/getOGAList",
+    requestBody: ["applicant_form_id", "submitted_on"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getOGIA",
+    requestBody: ["offsetNo", "limit", "formStatus", "round"],
+  },
+  {
+    method: "post",
     route: "/api/rest/getPastInspections",
+    requestBody: ["assessor_id", "date"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getPendingInspections",
     requestBody: ["assessor_id", "date"],
   },
   { method: "post", route: "/api/rest/getRegulator", requestBody: ["email"] },
@@ -254,6 +298,11 @@ const endpoints = [
     method: "post",
     route: "/api/rest/getUpcomingInspections",
     requestBody: ["assessor_id", "date"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getUpcomingSchedules",
+    requestBody: ["today"],
   },
   {
     method: "post",
@@ -289,6 +338,11 @@ const endpoints = [
   },
   {
     method: "post",
+    route: "/api/rest/searchCourses",
+    requestBody: ["searchString"],
+  },
+  {
+    method: "post",
     route: "/api/rest/searchDesktop",
     requestBody: ["offsetNo", "limit", "searchString"],
   },
@@ -296,6 +350,11 @@ const endpoints = [
     method: "post",
     route: "/api/rest/searchForms",
     requestBody: ["offsetNo", "limit", "searchString", "formStatus"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/searchNOC",
+    requestBody: ["searchString", "round"],
   },
   {
     method: "post",
@@ -313,6 +372,21 @@ const endpoints = [
     method: "put",
     route: "/api/rest/unpublishForms",
     requestBody: ["form_id"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/updateApplicantDeviceId",
+    requestBody: ["user_id", "device_id"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/updateAssessorDeviceId",
+    requestBody: ["user_id", "device_id"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/updateChildCode",
+    requestBody: ["form_id", "child_code"],
   },
   {
     method: "put",
@@ -354,6 +428,21 @@ const endpoints = [
   },
   {
     method: "post",
+    route: "/api/rest/updateParentCode",
+    requestBody: ["institute_id", "parent_code"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/updatePaymentStatus",
+    requestBody: ["form_id", "payment_status"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/updateRegulatorDeviceId",
+    requestBody: ["user_id", "device_id"],
+  },
+  {
+    method: "post",
     route: "/api/rest/validateAssessor",
     requestBody: [
       "assessorUserId",
@@ -368,6 +457,164 @@ const endpoints = [
     route: "/api/rest/viewNotification",
     requestBody: ["notification_id"],
   },
+  {
+    method: "post",
+    route: "/api/rest/viewSchedule",
+    requestBody: ["user_id", "date"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getCourseMapping",
+    requestBody: ["courseType", "courseLevel"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/filterRegulatorByRole",
+    requestBody: ["offsetNo", "limit", "role"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getFormSubmissionsByCourseIdApplicantIdFormStatus",
+    requestBody: ["course_id", "applicant_id","form_status"]
+  },
+  {
+    method: "post",
+    route: "/api/rest/getFormSubmissionCountByStatus",
+    requestBody: ["formStatus","offsetNo", "limit"]
+  },
+  {
+    method: "post",
+    route: "/api/rest/filterFormSubmissionsByRound",
+    requestBody: ["round","offsetNo","limit"]
+  },
+  {
+    method: "post",
+    route: "/api/rest/searchDashboardForms",
+    requestBody: ["searchString","offsetNo","limit"]
+  },
+  {
+    method: "post",
+    route: "/api/rest/filterSubmittedFormByRound",
+    requestBody: ["param","offsetNo","limit"]
+  },
+
+  {
+    method: "post",
+    route: "/api/rest/getApprovedSubmissionCount",
+    requestBody: ["round"]
+  },
+
+  {
+    method: "post",
+    route: "/api/rest/getRejectedSubmissionsCount",
+    requestBody: ["round"]
+  },
+
+  {
+    method: "post",
+    route: "/api/rest/getInProgressSubmissionCount",
+    requestBody: ["round"]
+  },
+  {
+    method: "post",
+    route: "/api/rest/getOGAFormsCountByRoundAndFormStatus",
+    requestBody: ["round","formStatus"]
+  },
+  {
+    method: "put",
+    route: "/api/rest/regulator/activate",
+    requestBody: ["requlatorId"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/regulator/deactivate",
+    requestBody: ["requlatorId"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/applicantApplicationStatus",
+    requestBody: ["applicant_id", "noc_path", "round"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/findUserByEmail",
+    requestBody: ["email"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/instituteFormsDrafts",
+    requestBody: [
+      "applicant_id",
+      "form_status",
+      "assessment_type",
+      "round",
+      "course_type",
+      "course_level",
+      "course_id",
+      "active",
+      "updated_by",
+      "created_by",
+      "form_data",
+      "form_id",
+      "created_on",
+      "updated_on"
+    ],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getAllInstituteDrafts",
+    requestBody: ["searchString","offsetNo", "limit"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/saveTransactionRecord",
+    requestBody: [
+      "created_by",
+      "invoice_date",
+      "invoice_id",
+      "invoice_time",
+      "payer_id",
+      "payer_type",
+      "payment_mode",
+      "reference_no",
+      "refund_date",
+      "refund_id",
+      "refund_status",
+      "refund_time",
+      "transaction_amount",
+      "transaction_date",
+      "transaction_status",
+      "transaction_time"
+    ],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getAllTransactionRecords",
+    requestBody: ["$offset", "limit"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/filterAllTransactionRecords",
+    requestBody: ["param", "$offset", "limit"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/saveInitialFormSubmissions",
+    requestBody: [
+      "form_data",
+      "form_name"
+    ],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getAllInitialFormSubmissions",
+    requestBody: ["$offset", "limit"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getInitialFormSubmissionsById",
+    requestBody: ["id"],
+  }
 ];
 
 export default endpoints;

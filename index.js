@@ -2,7 +2,7 @@ import express from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import endpoints from "./endpoints/endpoints.js";
 import easyPay from "./utils/easypay.js";
-import  axios  from "axios";
+import axios  from "axios";
 
 const app = express();
 
@@ -20,20 +20,15 @@ endpoints.forEach((endpoint) => {
       target: targetURL,
       changeOrigin: true,
       onProxyReq: (proxyReq, req, res) => {
-        const bodyData = JSON.stringify(req.body);
-        proxyReq.setHeader(
-          "x-hasura-admin-secret",
-          req.header("x-hasura-admin-secret")
-        );
-        proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
+        proxyReq.setHeader("x-hasura-admin-secret", "myadminsecretkey");
+        proxyReq.setHeader("Hasura-Client-Name", "hasura-console");
+        if (endpoint.requestBody) {
+          const bodyData = JSON.stringify(req.body);
+          proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
+        }
         // Set request body if provided
         if (endpoint.requestBody && req.body) {
-          for (const field of endpoint.requestBody) {
-            if (req.body[field]) {
-              console.log(req.body[field]);
-              proxyReq.write(JSON.stringify({ [field]: req.body[field] }));
-            }
-          }
+          proxyReq.write(JSON.stringify(req.body));
         }
         proxyReq.end();
       },
@@ -110,6 +105,8 @@ app.post("/payment/v2/generatelink", async (req, res) => {
     res.status(200).send(response);
   } catch (err) {
     console.log(err);
+    console.error("Error:", err);
+    console.error("Error message:", err.message);
     res.status(500).send({ message: "Some Error Occured" });
   }
 });
