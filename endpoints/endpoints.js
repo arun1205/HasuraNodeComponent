@@ -628,6 +628,11 @@ const endpoints = [
       "updated_by",
       "updated_date"
     ],
+  },
+  {
+    method: "post",
+    route: "/api/rest/config/search",
+    requestBody: ["searchString", "offSet", "limit"],
   }
     
 ];
