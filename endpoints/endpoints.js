@@ -633,7 +633,7 @@ const endpoints = [
     requestBody: ["searchString", "offSet", "limit"],
   },
    {
-    method: "delete",
+    method: "post",
     route: "/api/rest/deleteInstituteFormDraftsById",
     requestBody: ["id"],
   },
