@@ -540,24 +540,22 @@ const endpoints = [
     route: "/api/rest/findUserByEmail",
     requestBody: ["email"],
   },
-  {
+   {
     method: "put",
     route: "/api/rest/instituteFormsDrafts",
     requestBody: [
       "applicant_id",
       "form_status",
+      "form_name",
       "assessment_type",
       "round",
       "course_type",
       "course_level",
+      "course_name",
       "course_id",
-      "active",
-      "updated_by",
       "created_by",
       "form_data",
-      "form_id",
-      "created_on",
-      "updated_on"
+      "created_at"
     ],
   },
   {
@@ -633,8 +631,17 @@ const endpoints = [
     method: "post",
     route: "/api/rest/config/search",
     requestBody: ["searchString", "offSet", "limit"],
-  }
-    
+  },
+   {
+    method: "delete",
+    route: "/api/rest/deleteInstituteFormDraftsById",
+    requestBody: ["id"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/updateInstituteFormDrafts",
+    requestBody: ["id", "formData],
+  }  
 ];
 
 export default endpoints;
