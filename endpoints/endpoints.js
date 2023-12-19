@@ -640,7 +640,7 @@ const endpoints = [
   {
     method: "post",
     route: "/api/rest/updateInstituteFormDrafts",
-    requestBody: ["id", "formData],
+    requestBody: ["id", "formData"],
   }  
 ];
 
