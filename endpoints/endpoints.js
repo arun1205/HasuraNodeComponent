@@ -656,6 +656,16 @@ const endpoints = [
     method: "put",
     route: "/api/rest/addNewRoleWithPermission",
     requestBody: ["object"]
+  },
+  {
+    method: "post",
+    route: "/api/rest/updateTransactionStatusByRefNo",
+    requestBody: ["refNo", "status"]
+  },
+  {
+    method: "post",
+    route: "/api/rest/updateRoleById",
+    requestBody: ["id", "param"]
   }
 
 ];
