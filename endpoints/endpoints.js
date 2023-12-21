@@ -641,7 +641,13 @@ const endpoints = [
     method: "post",
     route: "/api/rest/updateInstituteFormDrafts",
     requestBody: ["id", "formData"],
-  }  
+  },
+  {
+    method: "post",
+    route: "/api/rest/getOGAFormForInspectionSchedule",
+    requestBody: ["title", "assignee", "file_name"]
+  }
+
 ];
 
 export default endpoints;
