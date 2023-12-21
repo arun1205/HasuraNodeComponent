@@ -69,7 +69,7 @@ app.post("/payment/v2/generatelink", async (req, res) => {
 
     //create payload
     const date = new Date();
-   
+    console.log("date - ", date);
     let data = {
       object: {
         created_by: payload.created_by,
@@ -90,7 +90,7 @@ app.post("/payment/v2/generatelink", async (req, res) => {
     }
 
     //insert into hasura
-
+    console.log("Request payload - ", data);
     let config = {
       method: "put",
       maxBodyLength: Infinity,
