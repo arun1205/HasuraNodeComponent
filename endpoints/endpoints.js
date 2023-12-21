@@ -646,6 +646,16 @@ const endpoints = [
     method: "post",
     route: "/api/rest/getOGAFormForInspectionSchedule",
     requestBody: ["title", "assignee", "file_name"]
+  },
+  {
+    method: "post",
+    route: "/api/rest/getAllRolesWithPermissions",
+    requestBody: ["object", "offsetNo", "limit"]
+  },
+  {
+    method: "put",
+    route: "/api/rest/addNewRoleWithPermission",
+    requestBody: ["object"]
   }
 
 ];
