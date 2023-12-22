@@ -333,7 +333,7 @@ const  performBackgroundTask = async () => {
               var email = emailTemplate.replace("${applicantName}",formSubmissionObj[0].institute.name);
               const emailData = {
                 "recipientEmail":[formSubmissionObj[0].institute.email],
-                "emailSubject":"Inspection scheduled for KSIT",
+                "emailSubject":"Inspection scheduled for "+formSubmissionObj[0].institute.name,
                 "emailBody":email
               };
               sendEmailNotification(emailData);
