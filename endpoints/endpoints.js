@@ -666,6 +666,16 @@ const endpoints = [
     method: "post",
     route: "/api/rest/updateRoleById",
     requestBody: ["id", "param"]
+  },
+  {
+    method: "put",
+    route: "/api/rest/savePageInfo",
+    requestBody: ["param"]
+  },
+  {
+    method: "post",
+    route: "/api/rest/getPages",
+    requestBody: ["param"]
   }
 
 ];
