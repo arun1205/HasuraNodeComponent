@@ -540,31 +540,134 @@ const endpoints = [
     route: "/api/rest/findUserByEmail",
     requestBody: ["email"],
   },
-  {
+   {
     method: "put",
     route: "/api/rest/instituteFormsDrafts",
     requestBody: [
       "applicant_id",
       "form_status",
+      "form_name",
       "assessment_type",
       "round",
       "course_type",
       "course_level",
+      "course_name",
       "course_id",
-      "active",
-      "updated_by",
       "created_by",
       "form_data",
-      "form_id",
-      "created_on",
-      "updated_on"
+      "created_at"
     ],
   },
   {
     method: "post",
     route: "/api/rest/getAllInstituteDrafts",
     requestBody: ["searchString","offsetNo", "limit"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/saveTransactionRecord",
+    requestBody: [
+      "created_by",
+      "invoice_date",
+      "invoice_id",
+      "invoice_time",
+      "payer_id",
+      "payer_type",
+      "payment_mode",
+      "reference_no",
+      "refund_date",
+      "refund_id",
+      "refund_status",
+      "refund_time",
+      "transaction_amount",
+      "transaction_date",
+      "transaction_status",
+      "transaction_time"
+    ],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getAllTransactionRecords",
+    requestBody: ["$offset", "limit"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/filterAllTransactionRecords",
+    requestBody: ["param", "$offset", "limit"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/saveInitialFormSubmissions",
+    requestBody: [
+      "form_data",
+      "form_name"
+    ],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getAllInitialFormSubmissions",
+    requestBody: ["$offset", "limit"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getInitialFormSubmissionsById",
+    requestBody: ["id"],
+  },
+  {
+    method: "put",
+    route: "/api/rest/config/add",
+    requestBody: [
+      "name",
+      "type",
+      "value",
+      "status",
+      "created_by",
+      "created_date",
+      "updated_by",
+      "updated_date"
+    ],
+  },
+  {
+    method: "post",
+    route: "/api/rest/config/search",
+    requestBody: ["searchString", "offSet", "limit"],
+  },
+   {
+    method: "post",
+    route: "/api/rest/deleteInstituteFormDraftsById",
+    requestBody: ["id"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/updateInstituteFormDrafts",
+    requestBody: ["id", "formData"],
+  },
+  {
+    method: "post",
+    route: "/api/rest/getOGAFormForInspectionSchedule",
+    requestBody: ["title", "assignee", "file_name"]
+  },
+  {
+    method: "post",
+    route: "/api/rest/getAllRolesWithPermissions",
+    requestBody: ["object", "offsetNo", "limit"]
+  },
+  {
+    method: "put",
+    route: "/api/rest/addNewRoleWithPermission",
+    requestBody: ["object"]
+  },
+  {
+    method: "post",
+    route: "/api/rest/updateTransactionStatusByRefNo",
+    requestBody: ["refNo", "status"]
+  },
+  {
+    method: "post",
+    route: "/api/rest/updateRoleById",
+    requestBody: ["id", "param"]
   }
+
 ];
 
 export default endpoints;
