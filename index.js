@@ -161,7 +161,7 @@ const bulkUpload = (updateStr) => {
 };
 
 // Endpoint for uploading CSV file
-app.post('/upload', upload.single('csvFile'), (req, res) => {
+app.post('/upload/assessor/schedule', upload.single('csvFile'), (req, res) => {
   try {
     //const validCSVHeaders = [form_id,form_title,aplication_type,course_type,assessor_id];
     
