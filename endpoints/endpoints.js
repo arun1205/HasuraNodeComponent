@@ -660,7 +660,7 @@ const endpoints = [
   {
     method: "post",
     route: "/api/rest/updateTransactionStatusByRefNo",
-    requestBody: ["refNo", "status"]
+    requestBody: ["refNo", "status", "formId"]
   },
   {
     method: "post",
