@@ -2,6 +2,7 @@ import express from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import endpoints from "./endpoints/endpoints.js";
 import easyPay from "./utils/easypay.js";
+import scheduledJob from "./scheduler.js";
 import axios  from "axios";
 
 const app = express();
@@ -13,7 +14,7 @@ import multer from "multer";
 //const multer = require('multer');
 import csv from "csv-parser";
 //const csv = require('csv-parser');
-import fs from "fs";
+import exceljs from "exceljs";
 //const fs = require('fs');
 import stream from "stream";
 
@@ -136,94 +137,98 @@ app.post("/payment/v2/generatelink", async (req, res) => {
   }
 });
 
-// Parse CSV header
-const parseHeader = (csvData) => {
-  const lines = csvData.split('\n');
-  if (lines.length > 0) {
-    return lines[0].split(',').map(header => header.trim().toLowerCase());
-  }
-  return [];
-};
 const bulkUploadAssessorSchedule = '/api/rest/bulkUploadAssessorSchedule';
 const bulkUpload = (updateStr) => {
-  return new Promise(resolve => {
-      setTimeout(async() => {
+  return new Promise(async(resolve) => {
           try {
               console.log(updateStr);
               const response = await axiosInstance.post(targetURL+bulkUploadAssessorSchedule, updateStr);
               resolve(response.data.insert_assessor_schedule_bulk_upload.returning); 
           } catch (error) {
-              console.error('Error updating status:', error.message);
+              console.error('Error in updating data to bulk upload table:', error.message);
               throw error;
           }
-      }, 1000);
   });
 };
 
-// Endpoint for uploading CSV file
-app.post('/upload/assessor/schedule', upload.single('csvFile'), (req, res) => {
+// Endpoint for uploading file
+app.post('/upload/assessor/schedule', upload.single('file'), async(req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+  if (!req.body.userId) {
+    return res.status(400).json({ error: 'UserId is not provided' });
+  }
   try {
-    //const validCSVHeaders = [form_id,form_title,aplication_type,course_type,assessor_id];
-    
-    // Get CSV data from the uploaded file
-    const csvDataString = req.file.buffer.toString('utf8');
-
-    // Get CSV header
-    const csvHeader = parseHeader(csvDataString);
-    //console.log(csvHeader)
-    
-    const readableStream = stream.Readable.from(csvDataString);
     const processId = uuidv4();
-    // Parse CSV data
+
+    const validfileHeaders = ["form_id","form_title","application_type","course_type","assessor_id"];
+    const { userId } = req.body;
+
+    // Get data from the uploaded file
+    const fileDataString = req.file.buffer;    
+    const readableStream = stream.Readable.from(fileDataString);
+    
+    const workbook = new exceljs.Workbook();
+    await workbook.xlsx.read(readableStream);
+    const worksheet = workbook.getWorksheet(1); // Assuming the first sheet
+
     const results = [];
-    const parseOptions = {
-      mapHeaders: ({ header, index }) => header.toLowerCase().trim(), // Normalize header names
-      mapValues: ({ value }) => value.trim(), // Trim whitespace from values
-    };
-    //console.log(parseOptions)
-    //const response = {};
-    //DISTRICT,PARENT CENTER CODE,CHILD CENTER CODE,INSTITUTE NAME,ASSESSMENT DATE,ASSESSOR IDS,STATUS
-    //find application id using institute name
-    readableStream.pipe(csv(parseOptions))
-      .on('data', (data) => {
-        const formid = /\d/.test(data.form_id)==true?parseInt(data.form_id, 10):0;
-        const assessor_code = /\d/.test(data.assessor_id)==true?parseInt(data.assessor_id, 10):0;
-          if(formid != 0 && assessor_code!= 0 ){
-            const newObj = {
-              "application_id" : formid,
-              "form_title" : data.form_title,
-              "application_type": data.application_type,
-              "course_type" : data.course_type,
-              "assessor_id" : assessor_code
-            };
-            results.push(newObj);
+    const header = [];
+    // Iterate over rows and columns
+    worksheet.eachRow((row, rowNumber) => {
+      const rowData = {};
+      row.eachCell((cell, colNumber) => {
+        // Assuming the first row contains headers
+        if (rowNumber === 1) {
+          header [colNumber]= cell.value.trim().toLowerCase().replace(/ /g, '_');
+        } else {
+          if(validfileHeaders.includes(header [colNumber])) {
+            var cellValue;
+            if(header [colNumber] == "form_id"){
+              cellValue = /\d/.test(cell.value)==true?parseInt(cell.value, 10):0;
+              rowData["application_id"] = cellValue;
+            }else if(header [colNumber] == "assessor_id") {
+              cellValue = /\d/.test(cell.value)==true?parseInt(cell.value, 10):0;
+              rowData[header [colNumber]] = cellValue;
+            }else{
+              cellValue = cell.value;
+              rowData[header [colNumber]] = cellValue;
+            }
           }
-      })
-      .on('end', async () => {        
-        results.forEach((item) => {
-          item["process_id"]=processId;
-          item["uploaded_by"]="system";
-          item["status"]="Pending";
-          item["uploaded_date"]=new Date().toLocaleString();
-        });
-        //{"assessor_schedule_bulk_upload": [{"id": 1,"process_id":1,"uploaded_by":"system","uploaded_date": "2023-11-17","application_id":234,"assessor_id":232}]} 
-        const bulkUploadDetails = bulkUpload({"assessor_schedule_bulk_upload":results});
-
-        const worker = new Worker('./backgroundWorker.js');
-        worker.on('message', (message) => {
-          console.log(`Background Worker Message: ${message}`);
-        });
-        worker.on('error', (error) => {
-          console.error(`Background Worker Error: ${error}`);
-        });
-        worker.on('exit', (code) => {
-          console.log(`Background Worker exited with code ${code}`);
-        });
-
-        // Process the parsed CSV data
-        res.json({ data: results });
-        
+        }
       });
+      if(Object.keys(rowData).length !== 0){
+        if(rowData.assessor_id == undefined){
+          rowData["assessor_id"]=0;
+        }
+        results.push(rowData);
+      }
+    });        
+    results.forEach((item) => {
+      item["process_id"]=processId;
+      item["uploaded_by"]=userId;
+      item["status"]="Pending";
+      item["uploaded_date"]=new Date().toLocaleString();
+    });
+    //{"assessor_schedule_bulk_upload": [{"id": 1,"process_id":1,"uploaded_by":"system","uploaded_date": "2023-11-17","application_id":234,"assessor_id":232}]} 
+    const bulkUploadDetails = bulkUpload({"assessor_schedule_bulk_upload":results});
+
+    const worker = new Worker('./backgroundWorker.js');
+    worker.on('message', (message) => {
+      console.log(`Background Worker Message: ${message}`);
+    });
+    worker.on('error', (error) => {
+      console.error(`Background Worker Error: ${error}`);
+    });
+    worker.on('exit', (code) => {
+      console.log(`Background Worker exited with code ${code}`);
+    });
+
+    // Process the parsed CSV data
+    res.json({ data: results });
+      
+
   } catch (error) {
     console.error("Error:", error);
     console.error("Error message:", error.message);
@@ -231,7 +236,28 @@ app.post('/upload/assessor/schedule', upload.single('csvFile'), (req, res) => {
   }
 });
 
+// Custom Stream class to create a readable stream from a buffer
+class BufferStream {
+  constructor(buffer) {
+    this.buffer = buffer;
+    this.position = 0;
+  }
+
+  read(size) {
+    if (this.position >= this.buffer.length) {
+      return null;
+    }
+
+    const chunk = this.buffer.slice(this.position, this.position + size);
+    this.position += chunk.length;
+
+    return chunk;
+  }
+}
 
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 });
+
+
+
