@@ -21,9 +21,7 @@ const axiosInstance = axios.create({
 
 //Get threshold days from DB
 const fetchThreshold = () => {
-
-    return new Promise(resolve => {
-        setTimeout(async() => {
+    return new Promise(async(resolve) => {
             try {
                 const reqData = {"searchString" : {"status": {"_eq": true}, "type": {"_eq": "scheduler"}},"offSet":0,"limit": 100};
                 const response = await axiosInstance.post(targetURL+GET_THRESHOLD_DAYS,reqData);
@@ -32,15 +30,13 @@ const fetchThreshold = () => {
                 console.error('Error fetching threshold days:', error.message);
                 throw error;
             }
-        }, 1000);
       });
     
 };
 
 //Get submitted date and reviewed date from DB
 const fetchData = (arr) => {
-    return new Promise(resolve => {
-        setTimeout(async() => {
+    return new Promise(async(resolve) => {
             try {
                 const reqData = {"params": arr};
                 const response = await axiosInstance.post(targetURL+GET_FORM_SUBMISSIONS_BY_STATUS, reqData);
@@ -49,14 +45,12 @@ const fetchData = (arr) => {
                 console.error('Error fetching application data:', error.message);
                 throw error;
             }
-        }, 1000);
     });
 };
 
 // Update status using the API
 const updateStatus = (updateStr) => {
-    return new Promise(resolve => {
-        setTimeout(async() => {
+    return new Promise(async(resolve) => {
             try {
                 console.log(updateStr);
                 const response = await axiosInstance.post(targetURL+UPDATE_ENDPOINT, updateStr);
@@ -65,7 +59,6 @@ const updateStatus = (updateStr) => {
                 console.error('Error updating status:', error.message);
                 throw error;
             }
-        }, 1000);
     });
   };
 
@@ -84,7 +77,8 @@ const updateStatus = (updateStr) => {
   };
 
 // Schedule the task to run every day at midnight
-cron.schedule('0 0 * * *', async () => {
+const scheduledJob = cron.schedule('0 0 * * *', async () => {
+  console.log('Cron job running at 12 AM');
   try {
     const currentDate = new Date();    
     const thresholdDaysMap = await fetchThreshold();
@@ -117,7 +111,7 @@ cron.schedule('0 0 * * *', async () => {
                       emailBody: email,
                     };
           
-                    sendEmailNotification(emailData);
+                    await sendEmailNotification(emailData);
                     console.log('Notification sent..');    
                 });
             }
@@ -126,6 +120,12 @@ cron.schedule('0 0 * * *', async () => {
   } catch (error) {
     console.error('Error updating status:', error.message);
   }
+}, {
+  //scheduled: true,
+  timezone: 'Asia/Kolkata', 
 });
 
 console.log('Scheduler started. Waiting for scheduled tasks...');
+export default {
+  scheduledJob
+};
