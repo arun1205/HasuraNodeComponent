@@ -679,7 +679,7 @@ const endpoints = [
   },
   {
     method: "put",
-    route: "/api/rest/assessor_update_form",
+    route: "/api/rest/assessorUpdateForm",
     requestBody: ["form_id", "form_status"],
   },
 
