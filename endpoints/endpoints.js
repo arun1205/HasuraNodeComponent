@@ -681,8 +681,11 @@ const endpoints = [
     method: "put",
     route: "/api/rest/assessorUpdateForm",
     requestBody: ["form_id", "form_status"],
-  },
-
+  },{
+    method: "get",
+    route: "/api/rest/findForms",
+    requestBody: ["param"],
+  }
 ];
 
 export default endpoints;
