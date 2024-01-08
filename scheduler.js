@@ -117,7 +117,10 @@ const scheduledJob = cron.schedule('0 0 * * *', async () => {
             }
         }
     });
-  } catch (error) {
+
+    scheduler2Fun();
+
+  } catch (error) { 
     console.error('Error updating status:', error.message);
   }
 }, {
@@ -125,6 +128,9 @@ const scheduledJob = cron.schedule('0 0 * * *', async () => {
   timezone: 'Asia/Kolkata', 
 });
 
+const scheduler2Fun = () => {
+  console.log('Arun...');
+};
 console.log('Scheduler started. Waiting for scheduled tasks...');
 export default {
   scheduledJob
