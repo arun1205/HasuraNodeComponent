@@ -396,7 +396,7 @@ const endpoints = [
   {
     method: "put",
     route: "/api/rest/updateFormStatusForOGA",
-    requestBody: ["form_id", "form_status", "oga_reverted_count"],
+    requestBody: ["form_id", "form_status", "oga_reverted_count","date"],
   },
   {
     method: "post",
