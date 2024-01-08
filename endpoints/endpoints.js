@@ -687,7 +687,7 @@ const endpoints = [
     route: "/api/rest/assessorUpdateForm",
     requestBody: ["form_id", "form_status"],
   },{
-    method: "get",
+    method: "post",
     route: "/api/rest/findForms",
     requestBody: ["param"],
   }
