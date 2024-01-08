@@ -120,7 +120,7 @@ const scheduledJob = cron.schedule('0 0 * * *', async () => {
 
     scheduler2Fun();
 
-  } catch (error) { console.log('Cron job running at 12 AM');
+  } catch (error) { 
     console.error('Error updating status:', error.message);
   }
 }, {
