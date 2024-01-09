@@ -144,14 +144,14 @@ const updateInspectionScheduleStatus = async() => {
       // update Assessor Status in form_submission to Delayed
       await updateStatus(
        { form_id: item.Applicant_form.form_id, 
-        form_status: "Delayed",
-        remarks: "Delayed because the inspection was not undertaken on the scheduled date", 
+        form_status: "Inspection Delayed",
+        remarks: "Inspection Delayed because the inspection was not undertaken on the scheduled date", 
         updated_at: new Date().toLocaleString()
        }
       )
       await updateAssessmentStatus({
         form_id: item.Applicant_form.form_id,
-        form_status: "Delayed"
+        form_status: "Inspection Delayed"
       });
     }
       
