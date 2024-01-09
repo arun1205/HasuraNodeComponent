@@ -5,13 +5,15 @@ import axios from "axios";
 const GET_THRESHOLD_DAYS = '/api/rest/config/search';
 const GET_FORM_SUBMISSIONS_BY_STATUS = '/api/rest/getFormSubmissionsByStatus';
 const UPDATE_ENDPOINT = "/api/rest/UpdateFormSubmissionStatus";
-const targetURL = process.env.TARGET_URL || "https://hasura.upsmfac.org";
-const notificationURL = process.env.REACT_APP_API_URL || "https://uphrh.in/api/api";
-const emailAuthToken = process.env.REACT_APP_AUTH_TOKEN || "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJSR3RkMkZzeG1EMnJER3I4dkJHZ0N6MVhyalhZUzBSSyJ9.kMLn6177rvY53i0RAN3SPD5m3ctwaLb32pMYQ65nBdA";
+const UPDATE_ASSESSMENT_ENDPOINT = "/rest/assessorUpdateForm"
+const SCHEDULES_ENDPOINT = "/rest/getAssessmentSchedule";
+const TARGET_URL = process.env.TARGET_URL || "https://hasura.upsmfac.org";
+const REACT_APP_NODE_URL = process.env.REACT_APP_API_URL || "https://uphrh.in/api/api";
+const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN || "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJSR3RkMkZzeG1EMnJER3I4dkJHZ0N6MVhyalhZUzBSSyJ9.kMLn6177rvY53i0RAN3SPD5m3ctwaLb32pMYQ65nBdA";
 
 // Creating an Axios instance with custom headers
 const axiosInstance = axios.create({
-    baseURL: targetURL,
+    baseURL: TARGET_URL,
     headers: {
       "x-hasura-admin-secret": "myadminsecretkey",
       "Hasura-Client-Name": "hasura-console"
@@ -24,7 +26,7 @@ const fetchThreshold = () => {
     return new Promise(async(resolve) => {
             try {
                 const reqData = {"searchString" : {"status": {"_eq": true}, "type": {"_eq": "scheduler"}},"offSet":0,"limit": 100};
-                const response = await axiosInstance.post(targetURL+GET_THRESHOLD_DAYS,reqData);
+                const response = await axiosInstance.post(TARGET_URL+GET_THRESHOLD_DAYS,reqData);
                 resolve( response.data.config); 
             } catch (error) {
                 console.error('Error fetching threshold days:', error.message);
@@ -39,7 +41,7 @@ const fetchData = (arr) => {
     return new Promise(async(resolve) => {
             try {
                 const reqData = {"params": arr};
-                const response = await axiosInstance.post(targetURL+GET_FORM_SUBMISSIONS_BY_STATUS, reqData);
+                const response = await axiosInstance.post(TARGET_URL+GET_FORM_SUBMISSIONS_BY_STATUS, reqData);
                 resolve(response.data.form_submissions); 
             } catch (error) {
                 console.error('Error fetching application data:', error.message);
@@ -53,7 +55,7 @@ const updateStatus = (updateStr) => {
     return new Promise(async(resolve) => {
             try {
                 console.log(updateStr);
-                const response = await axiosInstance.post(targetURL+UPDATE_ENDPOINT, updateStr);
+                const response = await axiosInstance.post(TARGET_URL+UPDATE_ENDPOINT, updateStr);
                 resolve(response.data.update_form_submissions.returning); 
             } catch (error) {
                 console.error('Error updating status:', error.message);
@@ -64,12 +66,12 @@ const updateStatus = (updateStr) => {
 
   const sendEmailNotification = async (postData) => {
     const res = await axiosInstance.post(
-      notificationURL + "/email/notify",
+      REACT_APP_NODE_URL + "/email/notify",
       postData,
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: emailAuthToken,
+          Authorization: AUTH_TOKEN,
         },
       }
     );
@@ -118,7 +120,7 @@ const scheduledJob = cron.schedule('0 0 * * *', async () => {
         }
     });
 
-    scheduler2Fun();
+    updateInspectionScheduleStatus();
 
   } catch (error) { 
     console.error('Error updating status:', error.message);
@@ -128,8 +130,73 @@ const scheduledJob = cron.schedule('0 0 * * *', async () => {
   timezone: 'Asia/Kolkata', 
 });
 
-const scheduler2Fun = () => {
-  console.log('Arun...');
+const updateInspectionScheduleStatus = async() => {
+  console.log('updating Inspection Schedule Status...');
+  const res = await getAssessmentSchedule();
+  const today = new Date(); 
+  res.forEach( async (item) => {
+    
+    const assessment_date = new Date(item.date);
+    const updatedDateDifference = assessment_date.getDate() - today.getDate();
+    
+    if(updatedDateDifference < 0 && item.status === "Upcoming"){
+      //console.log('item: '+item.Applicant_form.form_id);
+      // update Assessor Status in form_submission to Delayed
+      await updateStatus(
+       { form_id: item.Applicant_form.form_id, 
+        form_status: "Inspection Delayed",
+        remarks: "Inspection Delayed because the inspection was not undertaken on the scheduled date", 
+        updated_at: new Date().toLocaleString()
+       }
+      )
+      await updateAssessmentStatus({
+        form_id: item.Applicant_form.form_id,
+        form_status: "Inspection Delayed"
+      });
+    }
+      
+});
+};
+
+// update Assessor Status in assessment_schedule to Delayed
+const updateAssessmentStatus = (reqBody) => {
+  console.log('updating Assessment Status in assessment_schedule table to Delayed...');
+  return new Promise(async(resolve) => {
+          try {
+              const response = await axiosInstance.put(REACT_APP_NODE_URL+UPDATE_ASSESSMENT_ENDPOINT, reqBody,
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: AUTH_TOKEN,
+                  },
+                });
+              resolve(response); 
+          } catch (error) {
+              console.error('Error updating status:', error.message);
+              throw error;
+          }
+  });
+};
+
+const getAssessmentSchedule = () => {
+  console.log('getting Assessment Schedule...');
+  return new Promise(async(resolve) => {
+          try {
+              const reqData = {};
+              const response = await axiosInstance.post(REACT_APP_NODE_URL+SCHEDULES_ENDPOINT, reqData,
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: AUTH_TOKEN,
+                  },
+                });
+           
+              resolve(response.data.assessment_schedule); 
+          } catch (error) {
+              console.error('Error fetching application data:', error.message);
+              throw error;
+          }
+  });
 };
 console.log('Scheduler started. Waiting for scheduled tasks...');
 export default {
