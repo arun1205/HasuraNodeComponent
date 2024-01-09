@@ -79,7 +79,7 @@ const updateStatus = (updateStr) => {
   };
 
 // Schedule the task to run every day at midnight
-const scheduledJob = cron.schedule('* * * * *', async () => {
+const scheduledJob = cron.schedule('0 0 * * *', async () => {
   console.log('Cron job running at 12 AM');
   try {
     const currentDate = new Date();    
