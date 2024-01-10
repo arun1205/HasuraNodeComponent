@@ -430,6 +430,7 @@ const endpoints = [
       "course_level",
       "form_desc",
       "form_id",
+      "last_submitted_date"
     ],
   },
   {
