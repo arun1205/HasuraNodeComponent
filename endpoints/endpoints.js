@@ -114,6 +114,7 @@ const endpoints = [
       "file_name",
       "course_level",
       "form_desc",
+      "last_submitted_date"
     ],
   },
   { method: "delete", route: "/api/rest/deleteForm", requestBody: ["form_id"] },
