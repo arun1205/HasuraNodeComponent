@@ -175,7 +175,6 @@ app.post('/upload/assessor/schedule', upload.single('file'), async(req, res) => 
 
     const results = [];
     const header = [];
-  //  var invalidFile = true;
     // Iterate over rows and columns
     worksheet.eachRow((row, rowNumber) => {
       const rowData = {};
@@ -196,18 +195,13 @@ app.post('/upload/assessor/schedule', upload.single('file'), async(req, res) => 
               cellValue = cell.value;
               rowData[header [colNumber]] = cellValue;
             }
-            //console.log (cellValue + ": "+header [colNumber]);
             if(cellValue.length<=1){
               console.error("Invalid data format");
               throw new BadRequestError("Invalid data format : "+cellValue );
-              //invalidFile = true;
-              //return;
             }
           }else{
             console.error("Invalid file format");
             throw new BadRequestError("Invalid file format : "+header [colNumber] );
-            //invalidFile = true;
-            //return;
           }
         }
       });
@@ -223,9 +217,6 @@ app.post('/upload/assessor/schedule', upload.single('file'), async(req, res) => 
     if(results.length===0){
       throw new BadRequestError("Invalid file format");
     }
-    //if(invalidFile){
-   //     return res;
-    //} else{
       results.forEach((item) => {
         item["process_id"]=processId;
         item["uploaded_by"]=userId;
@@ -249,7 +240,6 @@ app.post('/upload/assessor/schedule', upload.single('file'), async(req, res) => 
       // Process the parsed CSV data
       return res.json({ data: results });
         
-   // }
   } catch (error) {
     if (error instanceof BadRequestError) {
       console.error(`Caught BadRequestError: ${error.message}`);

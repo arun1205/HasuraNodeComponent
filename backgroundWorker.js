@@ -2,7 +2,7 @@ import axios from "axios";
 import async from "async";
 const targetURL = process.env.TARGET_URL || "https://hasura.upsmfac.org";
 const REACT_APP_NODE_URL = process.env.REACT_APP_API_URL || "https://uphrh.in/api/api";
-const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN || "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJSR3RkMkZzeG1EMnJER3I4dkJHZ0N6MVhyalhZUzBSSyJ9.kMLn6177rvY53i0RAN3SPD5m3ctwaLb32pMYQ65nBdA";
+const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
 
 const getBulkUploadAssessorSchedule = '/api/rest/getBulkUploadAssessorSchedule';
 const filterAssessments = '/api/rest/filterAssessments';
