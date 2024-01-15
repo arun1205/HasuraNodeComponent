@@ -2,7 +2,7 @@ import express from "express";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import endpoints from "./endpoints/endpoints.js";
 import easyPay from "./utils/easypay.js";
-import scheduledJob from "./scheduler.js";
+import scheduledJob from "./asessorScheduler.js";
 import axios  from "axios";
 
 const app = express();
@@ -162,7 +162,7 @@ app.post('/upload/assessor/schedule', upload.single('file'), async(req, res) => 
   try {
     const processId = uuidv4();
 
-    const validfileHeaders = ["form_id","form_title","application_type","course_type","assessor_id"];
+    const validfileHeaders = ["form_id","form_title","application_type","course_type","date","form_status","payment_status","assessor_id"];
     const { userId } = req.body;
 
     // Get data from the uploaded file
@@ -175,6 +175,7 @@ app.post('/upload/assessor/schedule', upload.single('file'), async(req, res) => 
 
     const results = [];
     const header = [];
+  //  var invalidFile = true;
     // Iterate over rows and columns
     worksheet.eachRow((row, rowNumber) => {
       const rowData = {};
@@ -195,6 +196,18 @@ app.post('/upload/assessor/schedule', upload.single('file'), async(req, res) => 
               cellValue = cell.value;
               rowData[header [colNumber]] = cellValue;
             }
+            //console.log (cellValue + ": "+header [colNumber]);
+            if(cellValue.length<=1){
+              console.error("Invalid data format");
+              throw new BadRequestError("Invalid data format : "+cellValue );
+              //invalidFile = true;
+              //return;
+            }
+          }else{
+            console.error("Invalid file format");
+            throw new BadRequestError("Invalid file format : "+header [colNumber] );
+            //invalidFile = true;
+            //return;
           }
         }
       });
@@ -203,39 +216,61 @@ app.post('/upload/assessor/schedule', upload.single('file'), async(req, res) => 
           rowData["assessor_id"]=0;
         }
         results.push(rowData);
+      }else{
+        //Ignore the empty row
       }
-    });        
-    results.forEach((item) => {
-      item["process_id"]=processId;
-      item["uploaded_by"]=userId;
-      item["status"]="Pending";
-      item["uploaded_date"]=new Date().toLocaleString();
-    });
-    //{"assessor_schedule_bulk_upload": [{"id": 1,"process_id":1,"uploaded_by":"system","uploaded_date": "2023-11-17","application_id":234,"assessor_id":232}]} 
-    const bulkUploadDetails = bulkUpload({"assessor_schedule_bulk_upload":results});
+    });    
+    if(results.length===0){
+      throw new BadRequestError("Invalid file format");
+    }
+    //if(invalidFile){
+   //     return res;
+    //} else{
+      results.forEach((item) => {
+        item["process_id"]=processId;
+        item["uploaded_by"]=userId;
+        item["status"]="Pending";
+        item["uploaded_date"]=new Date().toLocaleString();
+      });
+      //{"assessor_schedule_bulk_upload": [{"id": 1,"process_id":1,"uploaded_by":"system","uploaded_date": "2023-11-17","application_id":234,"assessor_id":232}]} 
+      const bulkUploadDetails = bulkUpload({"assessor_schedule_bulk_upload":results});
 
-    const worker = new Worker('./backgroundWorker.js');
-    worker.on('message', (message) => {
-      console.log(`Background Worker Message: ${message}`);
-    });
-    worker.on('error', (error) => {
-      console.error(`Background Worker Error: ${error}`);
-    });
-    worker.on('exit', (code) => {
-      console.log(`Background Worker exited with code ${code}`);
-    });
+      const worker = new Worker('./backgroundWorker.js');
+      worker.on('message', (message) => {
+        console.log(`Background Worker Message: ${message}`);
+      });
+      worker.on('error', (error) => {
+        console.error(`Background Worker Error: ${error}`);
+      });
+      worker.on('exit', (code) => {
+        console.log(`Background Worker exited with code ${code}`);
+      });
 
-    // Process the parsed CSV data
-    res.json({ data: results });
-      
-
+      // Process the parsed CSV data
+      return res.json({ data: results });
+        
+   // }
   } catch (error) {
+    if (error instanceof BadRequestError) {
+      console.error(`Caught BadRequestError: ${error.message}`);
+      console.error(`HTTP Status Code: ${error.statusCode}`);
+      res.status(400).json({ success: false, error: error.message });
+    } else {
+     
     console.error("Error:", error);
     console.error("Error message:", error.message);
     res.status(500).json({ success: false, error: error.message });
+    }
   }
 });
-
+class BadRequestError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'BadRequestError';
+    this.statusCode = 400; // HTTP status code for Bad Request
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
 // Custom Stream class to create a readable stream from a buffer
 class BufferStream {
   constructor(buffer) {
