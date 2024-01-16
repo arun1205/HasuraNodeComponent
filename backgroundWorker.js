@@ -1,17 +1,15 @@
 import axios from "axios";
 import async from "async";
 const targetURL = process.env.TARGET_URL || "https://hasura.upsmfac.org";
-const notificationURL = process.env.REACT_APP_API_URL || "https://uphrh.in/api/api";
-const emailAuthToken = process.env.REACT_APP_AUTH_TOKEN;
+const REACT_APP_NODE_URL = process.env.REACT_APP_API_URL || "https://uphrh.in/api/api";
+const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
 
 const getBulkUploadAssessorSchedule = '/api/rest/getBulkUploadAssessorSchedule';
 const filterAssessments = '/api/rest/filterAssessments';
-const getUsersForSchedulingAssessment = '/api/rest/getUsersForSchedulingAssessment';
 const addAssessmentSchedule = '/api/rest/addAssessmentSchedule';
 const addInstituteCourse = '/api/rest/addInstituteCourse';
 const addEvents = '/api/rest/addEvents';
 const updateForm = '/api/rest/updateForm';
-const getApplicantDeviceId = '/api/rest/getApplicantDeviceId';
 const notify = '/email/notify';
 const getFormSubmissionsByFormIds = '/api/rest/getFormSubmissionsByFormIds';
 const updateStatusToBulkUpload = '/api/rest/updateStatusToBulkUpload';
@@ -131,18 +129,24 @@ const getAdminDetails = async (adminId) => {
 
 const sendEmailNotification = async (postData) => {
   return new Promise(async(resolve) => {
-  const res = await axiosInstance.post(
-    notificationURL + notify,
-    postData,
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: emailAuthToken,
-      },
+    try {
+      //console.log(postData);
+      const res = await axiosInstance.post(
+        REACT_APP_NODE_URL + notify,
+        postData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: AUTH_TOKEN,
+          },
+        }
+      );
+      resolve( res);
+    } catch (error) {
+      console.error('Error sendEmailNotification:', error.message);
+      throw error;
     }
-  );
-  resolve( res);
-});
+  });
 };
 const getFormSubmissionsByFormId = (arr) => {
   return new Promise(async(resolve) => {
@@ -180,6 +184,24 @@ function findDuplicateRecords(array, attribute1, attribute2) {
     );
   });
 
+  return duplicates;
+}
+function findDuplicateRecordsByStatus(array, attribute1, attribute2, attribute3) {
+
+  var duplicates = array.filter((item, index, self) => {
+    return (
+      index !== self.findIndex(
+        (innerItem) =>
+          innerItem[attribute1] === item[attribute1] &&
+          (innerItem[attribute3] !== item[attribute3] 
+             )&&
+            item[attribute2] === 'Pending'
+      )
+    );
+  });
+
+  const maxId = duplicates.reduce((max, current) => (current.id > max ? current.id : max), array[0].id);
+  duplicates = duplicates.filter((record) => record.id !== maxId);
   return duplicates;
 }
 
@@ -342,7 +364,7 @@ const addAssessorSchedule = (formSubmissionObj, element, assessorObj, callback)=
   );
 } catch (error) {
   console.error('Error addAssessorSchedule:', error.message);
-  throw error;
+  //throw error;
 }
   
 }
@@ -356,6 +378,7 @@ const executeBulkUpload = (bulkUploadData,  emailTableRows, adminId, formSubData
       callback1(null,"success",emailTableRows, adminId);
     }else{
       bulkUploadData.forEach((element) => { 
+        adminId = element.uploaded_by;
         async.waterfall([   
           function checkAssessor(callback2){
           var isUpdate = false;          
@@ -435,14 +458,18 @@ const findMissingRecords = (object1, object2, key1,key2) => {
 };
 const removeDuplicatesFromBulkUpload = (bulkUploadData, emailTableRows, callback) =>{
   // Find duplicates based on the "application_id" attribute
-  const duplicates = findDuplicateRecords(bulkUploadData, 'application_id','process_id');
+  var duplicates = findDuplicateRecords(bulkUploadData, 'application_id','process_id');
+  const duplicatesByStatus = findDuplicateRecordsByStatus(bulkUploadData, 'application_id','status','process_id');
   var itemsProcessed = 0;
   var adminId = "";
-  console.log("duplicates "+ duplicates.length+" : "+bulkUploadData.length);
+  console.log("duplicates in request file"+ duplicates.length+" : "+bulkUploadData.length);
+  console.log("old duplicates in bulk upload table"+ duplicatesByStatus.length+" : "+bulkUploadData.length);
+  duplicates.push(...duplicatesByStatus);
   if(duplicates.length === 0){
     callback(null,"success",bulkUploadData,emailTableRows,adminId);
   }else{
     duplicates.forEach(element => {
+      adminId = element.uploaded_by;
       async.waterfall([
         function updatedbrec(callback1){
           var updateStatus = "Failed";
@@ -473,6 +500,7 @@ const removeInvalidFormSubmissionIds = async (bulkUploadData, emailTableRows, ad
     callback(null,"success",bulkUploadData,emailTableRows,adminId);
   } else {
     missingRecords.forEach(async (element) => {
+      adminId = element.uploaded_by;
       async.waterfall([
         function updatedbrec(callback1){
           var updateRemarks = "Form Application id is not existing in system or payment is not complete.";
@@ -546,12 +574,12 @@ const  performBackgroundTask = async () => {
             var adminEmail = adminEmailTemplate.replace("${adminName}", adminDetails[0].full_name);   
             adminEmail = adminEmail.replace("${emailTableRows}", emailTableRows.toString());
             const adminEmailData = {
-              "recipientEmail":[adminDetails[0].email,"reshmi.nair@tarento.com"],
+              "recipientEmail":[adminDetails[0].email],
               "emailSubject":"Assessor Upload Status",
               "emailBody":adminEmail
             };
             sendEmailNotification(adminEmailData);
-            console.log('Admin notification sent..');
+            console.log('Admin notification sent..'+adminDetails[0].email);
           }
           }
         });
@@ -562,7 +590,6 @@ const  performBackgroundTask = async () => {
     // Process the API response
   } catch (error) {
     console.error('Error making API call:', error.message);
-    throw error;
   }
 }
 
