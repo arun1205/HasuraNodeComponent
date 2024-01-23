@@ -1,7 +1,7 @@
 import axios from "axios";
 import async from "async";
-const targetURL = process.env.TARGET_URL || "https://hasura.upsmfac.org";
-const REACT_APP_NODE_URL = process.env.REACT_APP_API_URL || "https://uphrh.in/api/api";
+const targetURL = process.env.TARGET_URL;
+const REACT_APP_NODE_URL = process.env.REACT_APP_API_URL;
 const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
 
 const getBulkUploadAssessorSchedule = '/api/rest/getBulkUploadAssessorSchedule';
@@ -16,12 +16,15 @@ const updateStatusToBulkUpload = '/api/rest/updateStatusToBulkUpload';
 const getAllAssessorsAPI = '/api/rest/getAllAssessors';
 const getAdminDetailsById = '/api/rest/getRegulator';
 
+const hasuraClientName = process.env.HASURA_CLIENT_NAME ;
+const hasuraAdminSecret = process.env.HASURA_ADMIN_SECRET ;
+
 // Creating an Axios instance with custom headers
 const axiosInstance = axios.create({
   baseURL: targetURL,
   headers: {
-    "x-hasura-admin-secret": "myadminsecretkey",
-    "Hasura-Client-Name": "hasura-console"
+    "x-hasura-admin-secret": hasuraAdminSecret,
+    "Hasura-Client-Name": hasuraClientName
     // Add any other headers you need
   },
 });

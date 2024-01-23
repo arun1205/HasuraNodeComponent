@@ -26,14 +26,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const port = process.env.PORT || 3000;
 
-const targetURL = process.env.TARGET_URL || "https://hasura.upsmfac.org";
+const targetURL = process.env.TARGET_URL ;
+const hasuraClientName = process.env.HASURA_CLIENT_NAME ;
+const hasuraAdminSecret = process.env.HASURA_ADMIN_SECRET ;
+const REACT_APP_NODE_URL = process.env.REACT_APP_API_URL;
 
 // Creating an Axios instance with custom headers
 const axiosInstance = axios.create({
   baseURL: targetURL,
   headers: {
-    "x-hasura-admin-secret": "myadminsecretkey",
-    "Hasura-Client-Name": "hasura-console"
+    "x-hasura-admin-secret": hasuraAdminSecret,
+    "Hasura-Client-Name": hasuraClientName
     // Add any other headers you need
   },
 });
@@ -46,8 +49,8 @@ endpoints.forEach((endpoint) => {
       target: targetURL,
       changeOrigin: true,
       onProxyReq: (proxyReq, req, res) => {
-        proxyReq.setHeader("x-hasura-admin-secret", "myadminsecretkey");
-        proxyReq.setHeader("Hasura-Client-Name", "hasura-console");
+        proxyReq.setHeader("x-hasura-admin-secret",hasuraAdminSecret);
+        proxyReq.setHeader("Hasura-Client-Name", hasuraClientName);
         if (endpoint.requestBody) {
           const bodyData = JSON.stringify(req.body);
           proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
@@ -120,7 +123,7 @@ app.post("/payment/v2/generatelink", async (req, res) => {
     let config = {
       method: "put",
       maxBodyLength: Infinity,
-      url: "https://uphrh.in/api/api/rest/saveTransactionRecord",
+      url: REACT_APP_NODE_URL+"/rest/saveTransactionRecord",
       headers: {
         Authorization: "Bearer " + process.env.Authorization,
       },
