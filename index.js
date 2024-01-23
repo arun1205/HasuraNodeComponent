@@ -18,6 +18,11 @@ import exceljs from "exceljs";
 //const fs = require('fs');
 import stream from "stream";
 
+const REACT_APP_NODE_URL = process.env.REACT_APP_API_URL || "https://uphrh.in/api/api";
+const KEYCLOAK_USER_ENDPOINT = "/v1/user/create"
+const REACT_APP_AUTH_TOKEN = process.env.REACT_APP_API_URL || "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJSR3RkMkZzeG1EMnJER3I4dkJHZ0N6MVhyalhZUzBSSyJ9.kMLn6177rvY53i0RAN3SPD5m3ctwaLb32pMYQ65nBdA"
+
+
 // Set up Multer for handling file uploads
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -26,17 +31,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const port = process.env.PORT || 3000;
 
-const targetURL = process.env.TARGET_URL ;
-const hasuraClientName = process.env.HASURA_CLIENT_NAME ;
-const hasuraAdminSecret = process.env.HASURA_ADMIN_SECRET ;
-const REACT_APP_NODE_URL = process.env.REACT_APP_API_URL;
+const targetURL = process.env.TARGET_URL || "https://hasura.upsmfac.org";
 
 // Creating an Axios instance with custom headers
 const axiosInstance = axios.create({
   baseURL: targetURL,
   headers: {
-    "x-hasura-admin-secret": hasuraAdminSecret,
-    "Hasura-Client-Name": hasuraClientName
+    "x-hasura-admin-secret": "myadminsecretkey",
+    "Hasura-Client-Name": "hasura-console"
     // Add any other headers you need
   },
 });
@@ -49,8 +51,8 @@ endpoints.forEach((endpoint) => {
       target: targetURL,
       changeOrigin: true,
       onProxyReq: (proxyReq, req, res) => {
-        proxyReq.setHeader("x-hasura-admin-secret",hasuraAdminSecret);
-        proxyReq.setHeader("Hasura-Client-Name", hasuraClientName);
+        proxyReq.setHeader("x-hasura-admin-secret", "myadminsecretkey");
+        proxyReq.setHeader("Hasura-Client-Name", "hasura-console");
         if (endpoint.requestBody) {
           const bodyData = JSON.stringify(req.body);
           proxyReq.setHeader("Content-Length", Buffer.byteLength(bodyData));
@@ -123,7 +125,7 @@ app.post("/payment/v2/generatelink", async (req, res) => {
     let config = {
       method: "put",
       maxBodyLength: Infinity,
-      url: REACT_APP_NODE_URL+"/rest/saveTransactionRecord",
+      url: "https://uphrh.in/api/api/rest/saveTransactionRecord",
       headers: {
         Authorization: "Bearer " + process.env.Authorization,
       },
@@ -282,6 +284,150 @@ class BufferStream {
     return chunk;
   }
 }
+
+// Endpoint for bulk user creation
+app.post('/upload/users', upload.single('file'), async(req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+/*   if (!req.body.userId) {
+    return res.status(400).json({ error: 'UserId is not provided' });
+  } */
+  try {
+    const processId = uuidv4();
+
+    const validfileHeaders = ["email","mobile_number","fname","lname","role"];
+    const { userId } = req.body;
+
+    // Get data from the uploaded file
+    const fileDataString = req.file.buffer;    
+    const readableStream = stream.Readable.from(fileDataString);
+    
+    const workbook = new exceljs.Workbook();
+    await workbook.xlsx.read(readableStream);
+    const worksheet = workbook.getWorksheet(1); // Assuming the first sheet
+
+    const results = [];
+    const header = [];
+
+    // Iterate over rows and columns
+    worksheet.eachRow((row, rowNumber) => {
+      const rowData = {};
+      let index = 0;
+      row.eachCell((cell, colNumber) => {
+        index++
+        // Assuming the first row contains headers
+        if (rowNumber === 1) {
+          header [colNumber]= cell.value.trim().toLowerCase().replace(/ /g, '_');
+        } else {
+          if(colNumber === index){
+            if(validfileHeaders.includes(header [colNumber])) {
+              let emailCellValue = "";
+              let mobNumCellValue = "";
+              if(header [colNumber] == "email"){
+                let emailString = "";
+                emailString = typeof cell.value === "object" ? cell.value.text : cell.value;
+                const isEmail = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(emailString);
+                emailCellValue = isEmail ? emailString.trim() :  "Invalid";
+                rowData["email"] = emailCellValue;
+              }
+              if(header [colNumber] === "mobile_number"){
+                const isPhoneNumber = /^(?:(?:\(\s*[\-]\s*)?|[0]?)?[6789]\d{9}$/.test(cell.value);
+                mobNumCellValue = isPhoneNumber ? cell.value :  "Invalid";
+                if(emailCellValue != "Invalid" && mobNumCellValue != "Invalid"){
+                  rowData["mobile_number"] = mobNumCellValue;
+                } else {
+                  res.json({ error : "Invalid Mobile Number / Email detected" });
+                }
+              }
+              if(header [colNumber] === "fname"){
+                rowData["fname"] = cell.value;
+              }
+              if(header [colNumber] === "lname"){
+                rowData["lname"] = cell.value;
+              }
+              if(header [colNumber] === "role"){
+                rowData["role"] = cell.value;
+              }
+
+            }
+         
+            if(Object.keys(rowData).length !== 0){
+               results.push(rowData);
+             }
+          } 
+          else {
+           // Empty Cells detected in excel sheet
+         results.length = 0;
+          }
+       
+        }
+      });
+     
+    }); 
+   // console.log(results)   
+   const users = Object.values(
+    results?.reduce((acc, obj) => ({ ...acc, [obj.email]: obj }), {})
+);    
+    // Process the parsed CSV data
+    if(users.length){
+      users.map(async (user) => {
+       const keyCloakPostData = {
+          "request": {
+              "firstName": user.fname,
+              "lastName": user.lname,
+              "email": user.email,
+              "username": user.email,
+              "enabled": true,
+              "emailVerified": false,
+              "credentials": [
+                  {
+                      "type": "password",
+                      "value": user.mobile_number,
+                      "temporary": "false"
+                  }
+              ],
+              "attributes": {
+                  "Role": user.role
+              }
+          }
+      }
+       let r =  await createBulkUsersKeyCloak(keyCloakPostData)
+       
+       console.log(r)
+      })
+      return res.json({ data: users  });
+    } else {
+      res.status(500).json({ success: false, error: 'Invalid excel sheet' });
+    }
+
+  } catch (error) {
+    console.error("Error:", error);
+    console.error("Error message:", error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+const createBulkUsersKeyCloak = (reqBody) => {
+  return new Promise(async(resolve) => {
+          try {
+              //console.log(processStr);
+              const response = await axiosInstance.post(REACT_APP_NODE_URL + KEYCLOAK_USER_ENDPOINT, reqBody,
+                {
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: REACT_APP_AUTH_TOKEN
+                  },
+                });
+              //console.log(response.data);
+              resolve(response); 
+          } catch (error) {
+              console.error('Error createBulkUsersKeyCloak:', error.message);
+              throw error;
+          }
+  });
+};
+
 
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);

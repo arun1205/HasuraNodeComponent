@@ -7,19 +7,16 @@ const GET_FORM_SUBMISSIONS_BY_STATUS = '/api/rest/getFormSubmissionsByStatus';
 const UPDATE_ENDPOINT = "/api/rest/UpdateFormSubmissionStatus";
 const UPDATE_ASSESSMENT_ENDPOINT = "/rest/assessorUpdateForm"
 const SCHEDULES_ENDPOINT = "/rest/getAssessmentSchedule";
-const TARGET_URL = process.env.TARGET_URL ;
-const REACT_APP_NODE_URL = process.env.REACT_APP_API_URL ;
+const TARGET_URL = process.env.TARGET_URL || "https://hasura.upsmfac.org";
+const REACT_APP_NODE_URL = process.env.REACT_APP_API_URL || "https://uphrh.in/api/api";
 const AUTH_TOKEN = process.env.REACT_APP_AUTH_TOKEN;
-
-const hasuraClientName = process.env.HASURA_CLIENT_NAME ;
-const hasuraAdminSecret = process.env.HASURA_ADMIN_SECRET ;
 
 // Creating an Axios instance with custom headers
 const axiosInstance = axios.create({
     baseURL: TARGET_URL,
     headers: {
-      "x-hasura-admin-secret": hasuraAdminSecret,
-      "Hasura-Client-Name": hasuraClientName
+      "x-hasura-admin-secret": "myadminsecretkey",
+      "Hasura-Client-Name": "hasura-console"
       // Add any other headers you need
     },
   });
